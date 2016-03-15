@@ -1,6 +1,12 @@
 ## Rails Lite
 
-A MVC web application framework built from scratch in Ruby as inspired by Rails.
+A MVC web application framework built from scratch in Ruby as inspired by Rails. Applications are mounted in local servers using WEBrick.
+
+## Usage
+* Clone this repository
+* In terminal, run `bundle install` to install gems
+* Run `ruby bin/server.rb` to test working server
+* Open `localhost:3000` in browser to see rendered view
 
 ## Features
 
@@ -22,28 +28,14 @@ Core functionalities include:
 * executes any action defined in controller on request
 * `redirect_to` another action or `render` the specified HTML ERB view template upon completion of action
 * avoids and handles double rendering by checking `already_built_response?`
-
-```ruby
-def redirect_to(url)
-  raise "Error: double render" if already_built_response?
-
-  @res.status = 302
-  @res["Location"] = url
-```
-
-```ruby
-def render_content(content, content_type)
-  raise "Error: double render" if already_built_response?
-
-  @res.write(content)
-  @res['Content-Type'] = content_type
-```
 * handles all parameters, whether they come from the browser request or the router
 * calls `session` class to handle session cookies
 
 
 ### Router & Routing
-`Route` class handles browser requests and determines the appropriate controller and action to instantiate and invoke. It is instantiated by the `Router` class which in turn implements RESTful routing through metaprogramming.
+`Route` class handles browser requests and determines the appropriate controller and action to instantiate and invoke.
+
+Routes are instantiated by the `Router` class which in turn implements RESTful routing through metaprogramming:
 
 ```ruby
 [:get, :post, :put, :delete].each do |http_method|
@@ -56,6 +48,8 @@ end
 ### Session
 `Session` class allows persistence of objects between browser requests. This is useful for objects that don't change much and are needed all the time, such as a Session Token object for a system that requires login.
 
+Sample usages of session could look like this:
+
 ```ruby
 #setting new session cookie
 session[:session_token] = User.session_token
@@ -67,8 +61,6 @@ session[:session_token] = nil
 ### Flash
 `Flash` class stores and renders flash and flash.now cookies. Flash cookies are not persisted and is thus useful for objects that are only temporarily relevant, such as error-messages.
 
-## Usage
-* Clone this repository
-* In terminal, run `bundle install` to install gems
-* Run `ruby bin/server.rb` to test working server
-* Open `localhost:3000` in browser to see rendered view
+## Todos
+-[ ] Add error handler middleware
+-[ ] Add CSRF tokens
