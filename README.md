@@ -3,21 +3,72 @@
 A MVC web application framework built from scratch in Ruby as inspired by Rails.
 
 ## Features
+
 ### ControllerBase
-* Mounts local server using WEBrick
-* ControllerBase class that redirects and renders HTML view templates
+`ControllerBase` class contains all core functionalities to handle web browser requests. All other controllers inherit from `ControllerBase`, allowing maintainability of controller configurations through a single class.
+
+A sample controller could look like this:
+
+```ruby
+class Controller < ControllerBase
+  def index
+    render_content("Welcome to Yian's Rails Lite Page!", "text/html")
+  end
+end
+```
+
+Core functionalities include:
+* updates HTTP header of browser responses, including fields such as `status` and `location`
+* executes any action defined in controller on request
+* `redirect_to` another action or `render` the specified HTML ERB view template upon completion of action
+* avoids and handles double rendering by checking `already_built_response?`
+
+```ruby
+def redirect_to(url)
+  raise "Error: double render" if already_built_response?
+
+  @res.status = 302
+  @res["Location"] = url
+```
+
+```ruby
+def render_content(content, content_type)
+  raise "Error: double render" if already_built_response?
+
+  @res.write(content)
+  @res['Content-Type'] = content_type
+```
+* handles all parameters, whether they come from the browser request or the router
+* calls `session` class to handle session cookies
+
 
 ### Router & Routing
-* Router class that handles browser requests and responses by instantiating a controller with router params and invoke the matched controller action
+`Route` class handles browser requests and determines the appropriate controller and action to instantiate and invoke. It is instantiated by the `Router` class which in turn implements RESTful routing through metaprogramming.
 
-### Session & Flash
-* Session class that stores and retrieves session cookies from browser
-* Flash class that Stores and renders flash and flash.now cookies
+```ruby
+[:get, :post, :put, :delete].each do |http_method|
+  define_method(http_method) do |pattern, controller_class, action_name|
+    add_route(pattern, http_method, controller_class, action_name)
+  end
+end
+```
+
+### Session
+`Session` class allows persistence of objects between browser requests. This is useful for objects that don't change much and are needed all the time, such as a Session Token object for a system that requires login.
+
+```ruby
+#setting new session cookie
+session[:session_token] = User.session_token
+
+#removing :session_token from session
+session[:session_token] = nil
+```
+
+### Flash
+`Flash` class stores and renders flash and flash.now cookies. Flash cookies are not persisted and is thus useful for objects that are only temporarily relevant, such as error-messages.
 
 ## Usage
 * Clone this repository
 * In terminal, run `bundle install` to install gems
 * Run `ruby bin/server.rb` to test working server
 * Open `localhost:3000` in browser to see rendered view
-
-## Code Highlights
