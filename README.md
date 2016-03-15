@@ -62,5 +62,5 @@ session[:session_token] = nil
 `Flash` class stores and renders flash and flash.now cookies. Flash cookies are not persisted and is thus useful for objects that are only temporarily relevant, such as error-messages.
 
 ## Todos
-[ ] Add error handler middleware
-[ ] Add CSRF tokens
+* Add error handler middleware
+* Add CSRF tokens
